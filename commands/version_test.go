@@ -6,33 +6,9 @@ import (
 )
 
 func TestLocalIP(t *testing.T) {
-	ip := LocalIP()
+	ip, _ := LocalIP()
 	if ip == "" {
 		t.Error("should not be nil", ip)
-	}
-}
-
-func TestVersionTimestamp(t *testing.T) {
-	version := NewVersionMessage(true)
-	timestamp := version.Timestamp(1257894000)
-	if hex := fmt.Sprintf("%x", timestamp); hex != "70f0f94a00000000" {
-		t.Error("should return the right timestamp", hex)
-	}
-
-	if len(timestamp) != 8 {
-		t.Error("should return the right timestamp size", len(timestamp))
-	}
-}
-
-func TestVersionAddrRecvIpAddress(t *testing.T) {
-	version := NewVersionMessage(true)
-	ip := version.AddrRecvIpAddress()
-	if hex := fmt.Sprintf("%x", ip); hex != "0000003139322e3136382e322e313036" {
-		t.Error("should return the right ip address", hex)
-	}
-
-	if len(ip) != 16 {
-		t.Error("ip address should have the right length", len(ip))
 	}
 }
 
@@ -127,6 +103,33 @@ func TestNewVersionMessage(t *testing.T) {
 
 	if len(version.Services) != 8 {
 		t.Error("should return the right length for services", len(version.Services))
+	}
+
+	timestamp := version.Timestamp
+	if hex := fmt.Sprintf("%x", timestamp); hex == "" {
+		t.Error("should return the right timestamp", hex)
+	}
+
+	if len(timestamp) != 8 {
+		t.Error("should return the right timestamp size", len(timestamp))
+	}
+
+	fromIpPort := version.FromIpPort
+	if hex := fmt.Sprintf("%x", fromIpPort); hex != "000000000000000000000000c0a8026a208d" {
+		t.Error("should return the right from ip/port", hex)
+	}
+
+	if len(fromIpPort) != 18 {
+		t.Error("should return the right from ip/port size", len(fromIpPort))
+	}
+
+	toIpPort := version.ToIpPort
+	if hex := fmt.Sprintf("%x", toIpPort); hex != "000000000000000000000000c0a8026a479d" {
+		t.Error("should return the right from ip/port", hex)
+	}
+
+	if len(toIpPort) != 18 {
+		t.Error("should return the right from ip/port size", len(toIpPort))
 	}
 
 }

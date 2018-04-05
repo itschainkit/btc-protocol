@@ -3,9 +3,9 @@ package commands
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 const (
@@ -13,50 +13,20 @@ const (
 	UserAgent       string = "/onecoin-btc:0.0.1/"
 )
 
-func LocalIP() string {
+func LocalIP() (string, []byte) {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return ""
+		return "", nil
 	}
 	for _, address := range addrs {
 		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
 			if ipnet.IP != nil {
-				return ipnet.IP.To4().String()
+				return ipnet.IP.To4().String(), ipnet.IP.To4()
 			}
 
 		}
 	}
-	return ""
-}
-
-func (m *VersionMessage) Timestamp(timeNow int) []byte {
-	timestamp := make([]byte, 8)
-	binary.LittleEndian.PutUint64(timestamp, uint64(timeNow))
-
-	return timestamp
-}
-
-func (m *VersionMessage) AddrRecvIpAddress() []byte {
-	buf := new(bytes.Buffer)
-	ip := []byte(LocalIP())
-
-	//ZEROs first
-	//TODO: Try to shift bits instead
-	for i := 0; i <= 16-len(ip)-1; i++ {
-		err := binary.Write(buf, binary.BigEndian, []byte{0x00})
-		if err != nil {
-			fmt.Println("binary.Write failed:", err)
-		}
-	}
-
-	for _, v := range ip {
-		err := binary.Write(buf, binary.BigEndian, v)
-		if err != nil {
-			fmt.Println("binary.Write failed:", err)
-		}
-	}
-
-	return buf.Bytes()
+	return "", nil
 }
 
 func (m *VersionMessage) AddrRecvPort() []byte {
@@ -119,8 +89,11 @@ func NewMessage(network string, controlMessage string) *Message {
 }
 
 type VersionMessage struct {
-	Version  []byte
-	Services []byte
+	Version    []byte
+	Services   []byte
+	Timestamp  []byte
+	FromIpPort []byte
+	ToIpPort   []byte
 }
 
 func NewVersionMessage(fullNode bool) *VersionMessage {
@@ -134,9 +107,32 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 		binary.LittleEndian.PutUint64(services, 0x00)
 	}
 
+	timestamp := make([]byte, 8)
+	timeNow := time.Now().Unix()
+	binary.LittleEndian.PutUint64(timestamp, uint64(timeNow))
+
+	//from := "127.0.0.1:8333"
+	yp, ip := LocalIP()
+	fromIpPortBuffer := new(bytes.Buffer)
+	paddingLeft := make([]byte, 12)
+	binary.Write(fromIpPortBuffer, binary.BigEndian, paddingLeft)
+	binary.Write(fromIpPortBuffer, binary.BigEndian, ip)
+	binary.Write(fromIpPortBuffer, binary.BigEndian, uint16(8333))
+
+	//to := "127.0.0.1:18333"
+	toIpPortBuffer := new(bytes.Buffer)
+	binary.Write(toIpPortBuffer, binary.BigEndian, paddingLeft)
+	binary.Write(toIpPortBuffer, binary.BigEndian, ip)
+	binary.Write(toIpPortBuffer, binary.BigEndian, uint16(18333))
+
+	log.Println("ip", yp, ip, len(yp), len(ip), fromIpPortBuffer.Bytes(), toIpPortBuffer.Bytes())
+
 	return &VersionMessage{
-		Version:  version,
-		Services: services,
+		Version:    version,
+		Services:   services,
+		Timestamp:  timestamp,
+		FromIpPort: fromIpPortBuffer.Bytes(),
+		ToIpPort:   toIpPortBuffer.Bytes(),
 	}
 }
 
