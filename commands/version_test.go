@@ -132,6 +132,11 @@ func TestNewVersionMessage(t *testing.T) {
 		t.Error("should return the right from ip/port size", len(toIpPort))
 	}
 
+	nonce := version.Nonce
+	if hex := fmt.Sprintf("%x", nonce); hex != "0000000000000000" {
+		t.Error("should return the right nonce", hex)
+	}
+
 }
 
 //func TestConnection(t *testing.T) {

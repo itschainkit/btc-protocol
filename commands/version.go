@@ -94,6 +94,7 @@ type VersionMessage struct {
 	Timestamp  []byte
 	FromIpPort []byte
 	ToIpPort   []byte
+	Nonce      []byte
 }
 
 func NewVersionMessage(fullNode bool) *VersionMessage {
@@ -127,12 +128,15 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 
 	log.Println("ip", yp, ip, len(yp), len(ip), fromIpPortBuffer.Bytes(), toIpPortBuffer.Bytes())
 
+	nonce := make([]byte, 8)
+
 	return &VersionMessage{
 		Version:    version,
 		Services:   services,
 		Timestamp:  timestamp,
 		FromIpPort: fromIpPortBuffer.Bytes(),
 		ToIpPort:   toIpPortBuffer.Bytes(),
+		Nonce:      nonce,
 	}
 }
 
