@@ -137,6 +137,11 @@ func TestNewVersionMessage(t *testing.T) {
 		t.Error("should return the right nonce", hex)
 	}
 
+	userAgent := version.UserAgent
+	if hex := fmt.Sprintf("%x", userAgent); hex != "2f6f6e65636f696e2d6274633a302e302e312f" {
+		t.Error("should return the right user agent", hex)
+	}
+
 }
 
 //func TestConnection(t *testing.T) {

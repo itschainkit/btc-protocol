@@ -95,6 +95,7 @@ type VersionMessage struct {
 	FromIpPort []byte
 	ToIpPort   []byte
 	Nonce      []byte
+	UserAgent  []byte
 }
 
 func NewVersionMessage(fullNode bool) *VersionMessage {
@@ -128,7 +129,12 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 
 	log.Println("ip", yp, ip, len(yp), len(ip), fromIpPortBuffer.Bytes(), toIpPortBuffer.Bytes())
 
+	//nonce
 	nonce := make([]byte, 8)
+
+	//useragent
+	userAgent := make([]byte, len(UserAgent))
+	copy(userAgent, []byte(UserAgent))
 
 	return &VersionMessage{
 		Version:    version,
@@ -137,6 +143,7 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 		FromIpPort: fromIpPortBuffer.Bytes(),
 		ToIpPort:   toIpPortBuffer.Bytes(),
 		Nonce:      nonce,
+		UserAgent:  userAgent,
 	}
 }
 
