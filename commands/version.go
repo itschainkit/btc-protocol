@@ -29,12 +29,6 @@ func LocalIP() (string, []byte) {
 	return "", nil
 }
 
-func (m *VersionMessage) AddrRecvPort() []byte {
-	port := make([]byte, 2)
-	binary.BigEndian.PutUint16(port, uint16(18334)) //TODO: take port from another place
-	return port
-}
-
 type Peer struct {
 	Connection net.Conn
 }
@@ -96,6 +90,8 @@ type VersionMessage struct {
 	ToIpPort   []byte
 	Nonce      []byte
 	UserAgent  []byte
+	LastBlock  []byte
+	Relay      []byte
 }
 
 func NewVersionMessage(fullNode bool) *VersionMessage {
@@ -114,7 +110,7 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 	binary.LittleEndian.PutUint64(timestamp, uint64(timeNow))
 
 	//from := "127.0.0.1:8333"
-	yp, ip := LocalIP()
+	_, ip := LocalIP()
 	fromIpPortBuffer := new(bytes.Buffer)
 	paddingLeft := make([]byte, 12)
 	binary.Write(fromIpPortBuffer, binary.BigEndian, paddingLeft)
@@ -127,14 +123,19 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 	binary.Write(toIpPortBuffer, binary.BigEndian, ip)
 	binary.Write(toIpPortBuffer, binary.BigEndian, uint16(18333))
 
-	log.Println("ip", yp, ip, len(yp), len(ip), fromIpPortBuffer.Bytes(), toIpPortBuffer.Bytes())
-
 	//nonce
 	nonce := make([]byte, 8)
 
 	//useragent
 	userAgent := make([]byte, len(UserAgent))
 	copy(userAgent, []byte(UserAgent))
+
+	//last block
+	lastBlock := make([]byte, 4)
+	binary.LittleEndian.PutUint32(lastBlock, uint32(0))
+
+	//relay
+	relay := []byte{0x01}
 
 	return &VersionMessage{
 		Version:    version,
@@ -144,6 +145,8 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 		ToIpPort:   toIpPortBuffer.Bytes(),
 		Nonce:      nonce,
 		UserAgent:  userAgent,
+		LastBlock:  lastBlock,
+		Relay:      relay,
 	}
 }
 

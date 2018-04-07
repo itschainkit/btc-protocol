@@ -12,18 +12,6 @@ func TestLocalIP(t *testing.T) {
 	}
 }
 
-func TestVersionAddrRecvPort(t *testing.T) {
-	version := NewVersionMessage(true)
-	port := version.AddrRecvPort()
-	if hex := fmt.Sprintf("%x", port); hex != "479e" {
-		t.Error("should return the right port number", hex)
-	}
-
-	if len(port) != 2 {
-		t.Error("port number should have the right length", 2)
-	}
-}
-
 func TestNewMessage(t *testing.T) {
 	message := NewMessage("testnet", "version")
 	if message.StartString == nil {
@@ -142,6 +130,15 @@ func TestNewVersionMessage(t *testing.T) {
 		t.Error("should return the right user agent", hex)
 	}
 
+	lastBlock := version.LastBlock
+	if hex := fmt.Sprintf("%x", lastBlock); hex != "00000000" {
+		t.Error("should return the right last block", hex)
+	}
+
+	relay := version.Relay
+	if hex := fmt.Sprintf("%x", relay); hex != "01" {
+		t.Error("should return the right relay", hex)
+	}
 }
 
 //func TestConnection(t *testing.T) {
