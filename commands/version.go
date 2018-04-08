@@ -150,6 +150,24 @@ func NewVersionMessage(fullNode bool) *VersionMessage {
 	}
 }
 
-func main() {
+func (m *VersionMessage) Payload() []byte {
+	payload := new(bytes.Buffer)
+	payload.Write(m.Version)
+	payload.Write(m.Services)
+	payload.Write(m.Timestamp)
+	payload.Write(m.FromIpPort)
+	payload.Write(m.ToIpPort)
+	payload.Write(m.Nonce)
+	payload.Write(m.UserAgent)
+	payload.Write(m.LastBlock)
+	payload.Write(m.Relay)
 
+	return payload.Bytes()
+}
+
+func (m *VersionMessage) Length() int {
+	return len(m.Payload())
+}
+
+func main() {
 }

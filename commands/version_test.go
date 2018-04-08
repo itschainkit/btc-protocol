@@ -141,6 +141,21 @@ func TestNewVersionMessage(t *testing.T) {
 	}
 }
 
+func TestToPayload(t *testing.T) {
+	version := NewVersionMessage(true)
+	payload := version.Payload()
+	//"7f11010001000000000000003715ca5a00000000000000000000000000000000c0a8026a208d000000000000000000000000c0a8026a479d00000000000000002f6f6e65636f696e2d6274633a302e302e312f0000000001"
+
+	if payload == nil {
+		t.Error("should return the payload")
+	}
+
+	if version.Length() != 88 {
+		t.Error("should return the right payload length", version.Length())
+	}
+
+}
+
 //func TestConnection(t *testing.T) {
 //	peer, err := Connect("localhost", "18333")
 //	defer peer.Connection.Close()
