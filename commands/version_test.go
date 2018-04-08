@@ -42,7 +42,7 @@ func TestNewMessage(t *testing.T) {
 		t.Error("payload size should not be nil")
 	}
 
-	if hex := fmt.Sprintf("%x", message.PayloadSize); hex != "00000000" {
+	if hex := fmt.Sprintf("%x", message.PayloadSize); hex != "58000000" {
 		t.Error("payload size should have the right value", hex)
 	}
 
@@ -54,7 +54,7 @@ func TestNewMessage(t *testing.T) {
 		t.Error("checksum should not be nil")
 	}
 
-	if hex := fmt.Sprintf("%x", message.Checksum); hex != "5df6e0e2" {
+	if hex := fmt.Sprintf("%x", message.Checksum); hex == "5df6e0e2" { //empty payload
 		t.Error("checksum should have the right value", hex)
 	}
 
@@ -111,13 +111,12 @@ func TestNewVersionMessage(t *testing.T) {
 		t.Error("should return the right from ip/port size", len(fromIpPort))
 	}
 
-	toIpPort := version.ToIpPort
-	if hex := fmt.Sprintf("%x", toIpPort); hex != "000000000000000000000000c0a8026a479d" {
+	if hex := fmt.Sprintf("%x", fromIpPort); hex != "000000000000000000000000c0a8026a208d" {
 		t.Error("should return the right from ip/port", hex)
 	}
 
-	if len(toIpPort) != 18 {
-		t.Error("should return the right from ip/port size", len(toIpPort))
+	if len(fromIpPort) != 18 {
+		t.Error("should return the right from ip/port size", len(fromIpPort))
 	}
 
 	nonce := version.Nonce

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"log"
 	"net"
@@ -67,12 +68,28 @@ func NewMessage(network string, controlMessage string) *Message {
 	commandName := make([]byte, 12)
 	copy(commandName, controlMessage)
 
-	// Fixed in this case that the payload is empty
-	payloadSize := make([]byte, 4)
-	binary.LittleEndian.PutUint32(payloadSize, uint32(0))
+	var message ControlMessage
+	if controlMessage == "version" {
+		message = NewVersionMessage(true)
+	}
 
+	payloadSize := make([]byte, 4)
+	checksum := make([]byte, 4)
 	// Fixed in this case that the payload is empty
-	checksum := []byte{0x5d, 0xf6, 0xe0, 0xe2}
+	if msgLength := message.Length(); msgLength < 1 {
+		binary.LittleEndian.PutUint32(payloadSize, uint32(0))
+		copy(checksum, []byte{0x5d, 0xf6, 0xe0, 0xe2})
+	} else {
+		binary.LittleEndian.PutUint32(payloadSize, uint32(msgLength))
+		//checksum
+		payloadSha256 := sha256.Sum256(message.Payload())
+		bck := new(bytes.Buffer)
+		for _, b := range payloadSha256 {
+			bck.WriteByte(b)
+		}
+		shaOfSha := sha256.Sum256(bck.Bytes())
+		copy(checksum, shaOfSha[0:4])
+	}
 
 	return &Message{
 		StartString: startString,
@@ -80,6 +97,11 @@ func NewMessage(network string, controlMessage string) *Message {
 		PayloadSize: payloadSize,
 		Checksum:    checksum,
 	}
+}
+
+type ControlMessage interface {
+	Payload() []byte
+	Length() int
 }
 
 type VersionMessage struct {
