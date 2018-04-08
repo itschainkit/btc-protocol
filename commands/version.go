@@ -57,6 +57,7 @@ type Message struct {
 	CommandName []byte
 	PayloadSize []byte
 	Checksum    []byte
+	Payload     []byte
 }
 
 func NewMessage(network string, controlMessage string) *Message {
@@ -96,7 +97,19 @@ func NewMessage(network string, controlMessage string) *Message {
 		CommandName: commandName,
 		PayloadSize: payloadSize,
 		Checksum:    checksum,
+		Payload:     message.Payload(),
 	}
+}
+
+func (m *Message) Bytes() []byte {
+	message := new(bytes.Buffer)
+	message.Write(m.StartString)
+	message.Write(m.CommandName)
+	message.Write(m.PayloadSize)
+	message.Write(m.Checksum)
+	message.Write(m.Payload)
+
+	return message.Bytes()
 }
 
 type ControlMessage interface {

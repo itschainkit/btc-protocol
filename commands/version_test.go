@@ -63,6 +63,14 @@ func TestNewMessage(t *testing.T) {
 	}
 }
 
+func TestMessageBytes(t *testing.T) {
+	version := NewMessage("testnet", "version")
+
+	if version.Bytes() == nil {
+		t.Error("should return message byte array", version.Bytes())
+	}
+}
+
 func TestNewVersionMessage(t *testing.T) {
 	version := NewVersionMessage(true)
 	if version == nil {
