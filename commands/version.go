@@ -30,25 +30,6 @@ func LocalIP() (string, []byte) {
 	return "", nil
 }
 
-type Peer struct {
-	Connection net.Conn
-}
-
-func Connect(host string, port string) (*Peer, error) {
-	connectionString := host + ":" + port
-	log.Println("connect to", connectionString)
-	conn, err := net.Dial("tcp", connectionString)
-	if err != nil {
-		return nil, err
-	}
-
-	peer := &Peer{
-		Connection: conn,
-	}
-
-	return peer, nil
-}
-
 //
 const maxPayloadSize uint32 = 0x02000000 //32MiB
 
@@ -63,6 +44,8 @@ type Message struct {
 func NewMessage(network string, controlMessage string) *Message {
 	var startString []byte
 	if network == "testnet" {
+		startString = []byte{0x0b, 0x11, 0x09, 0x07}
+	} else if network == "mainnet" {
 		startString = []byte{0xf9, 0xbe, 0xb4, 0xd9}
 	}
 
@@ -201,8 +184,24 @@ func (m *VersionMessage) Payload() []byte {
 }
 
 func (m *VersionMessage) Length() int {
-	return len(m.Payload())
+	return cap(m.Payload())
 }
 
-func main() {
+type Peer struct {
+	Connection net.Conn
+}
+
+func Connect(host string, port string) (*Peer, error) {
+	connectionString := host + ":" + port
+	log.Println("connect to", connectionString)
+	conn, err := net.Dial("tcp", connectionString)
+	if err != nil {
+		return nil, err
+	}
+
+	peer := &Peer{
+		Connection: conn,
+	}
+
+	return peer, nil
 }

@@ -18,7 +18,8 @@ func TestNewMessage(t *testing.T) {
 		t.Error("start string should not be nil")
 	}
 
-	if hex := fmt.Sprintf("%x", message.StartString); hex != "f9beb4d9" {
+	//if hex := fmt.Sprintf("%x", message.StartString); hex != "f9beb4d9" {
+	if hex := fmt.Sprintf("%x", message.StartString); hex != "0b110907" {
 		t.Error("start string should have right value", hex)
 	}
 
@@ -42,7 +43,7 @@ func TestNewMessage(t *testing.T) {
 		t.Error("payload size should not be nil")
 	}
 
-	if hex := fmt.Sprintf("%x", message.PayloadSize); hex != "58000000" {
+	if hex := fmt.Sprintf("%x", message.PayloadSize); hex != "93000000" {
 		t.Error("payload size should have the right value", hex)
 	}
 
@@ -157,7 +158,7 @@ func TestToPayload(t *testing.T) {
 		t.Error("should return the payload")
 	}
 
-	if version.Length() != 88 {
+	if version.Length() != 147 {
 		t.Error("should return the right payload length", version.Length())
 	}
 
